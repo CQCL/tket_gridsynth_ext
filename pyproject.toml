@@ -37,8 +37,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.maturin]
-# Maturin is not the build system for the workspace (it is only used for `tket-extension-template`).
-# We mirror the `tket-extension-template/pyproject.toml` config here so `maturin develop` still works
+# Maturin is not the build system for the workspace (it is only used for `tket-gridsynth-ext`).
+# We mirror the `tket-gridsynth-ext/pyproject.toml` config here so `maturin develop` still works
 # from the root of the workspace.
 module-name = "tket_extension_template._bindings"
 python-source = "python/src/"

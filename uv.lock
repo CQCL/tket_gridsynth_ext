@@ -8,7 +8,7 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "tket-extension-template",
+    "tket-gridsynth-ext",
 ]
 
 [manifest.dependency-groups]
@@ -1286,7 +1286,7 @@ wheels = [
 ]
 
 [[package]]
-name = "tket-extension-template"
+name = "tket-gridsynth-ext"
 version = "0.1.0"
 source = { editable = "python" }
 dependencies = [

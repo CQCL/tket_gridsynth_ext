@@ -1,8 +1,8 @@
-# tket-extension-template
+# tket-gridsynth-ext
 
-[![crates][]](https://crates.io/crates/tket-extension-template)
-[![msrv][]](https://github.com/CQCL/tket-extension-template)
-[![codecov][]](https://codecov.io/gh/CQCL/tket-extension-template)
+[![crates][]](https://crates.io/crates/tket-gridsynth-ext)
+[![msrv][]](https://github.com/CQCL/tket-gridsynth-ext)
+[![codecov][]](https://codecov.io/gh/CQCL/tket-gridsynth-ext)
 
 This README file appears in the landing page of the crate on crates.io.
 
@@ -13,7 +13,7 @@ It should include a high-level description of the extension, and a link to the A
 Add the dependency to your project:
 
 ```bash
-cargo add tket-extension-template
+cargo add tket-gridsynth-ext
 ```
 
 Please read the [API documentation here][].
@@ -27,9 +27,9 @@ version will only change on major releases.
 
 This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http://www.apache.org/licenses/LICENSE-2.0).
 
-  [API documentation here]: https://docs.rs/tket-extension-template/
-  [msrv]: https://img.shields.io/crates/msrv/tket-extension-template
-  [crates]: https://img.shields.io/crates/v/tket-extension-template
-  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket-extension-template?logo=codecov
-  [LICENSE]: https://github.com/CQCL/tket-extension-template/blob/main/LICENCE
-  [CHANGELOG]: https://github.com/CQCL/tket-extension-template/blob/main/tket-extension-template/CHANGELOG.md
+  [API documentation here]: https://docs.rs/tket-gridsynth-ext/
+  [msrv]: https://img.shields.io/crates/msrv/tket-gridsynth-ext
+  [crates]: https://img.shields.io/crates/v/tket-gridsynth-ext
+  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket-gridsynth-ext?logo=codecov
+  [LICENSE]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/LICENCE
+  [CHANGELOG]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/tket-gridsynth-ext/CHANGELOG.md

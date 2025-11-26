@@ -1,22 +1,20 @@
-# tket-extension-template
+# tket-gridsynth-ext
 
-[![build_status][]](https://github.com/CQCL/tket-extension-template/actions)
-[![crates][]](https://crates.io/crates/tket-extension-template)
-[![msrv][]](https://github.com/CQCL/tket-extension-template)
-[![codecov][]](https://codecov.io/gh/CQCL/tket-extension-template)
+[![build_status][]](https://github.com/CQCL/tket-gridsynth-ext/actions)
+[![crates][]](https://crates.io/crates/tket-gridsynth-ext)
+[![msrv][]](https://github.com/CQCL/tket-gridsynth-ext)
+[![codecov][]](https://codecov.io/gh/CQCL/tket-gridsynth-ext)
 
-This is a template for creating a new TKET extension.
+Applies gridsynth algorithm in TKET2.
 
-Make sure to update the `README.md` file to reflect the details of your extension.
-
-See [`TEMPLATE_INSTRUCTIONS.md`](https://github.com/CQCL/tket-extension-template/blob/main/TEMPLATE_INSTRUCTIONS.md) for instructions on how to use this template repository.
+See [`TEMPLATE_INSTRUCTIONS.md`](https://github.com/CQCL/tket-gridsynth-ext/blob/main/TEMPLATE_INSTRUCTIONS.md) for instructions on how to use this template repository.
 
 ## Usage
 
 Add the dependency to your project:
 
 ```bash
-cargo add tket-extension-template
+cargo add tket-gridsynth-ext
 ```
 
 Please read the [API documentation here][].
@@ -34,10 +32,10 @@ See [DEVELOPMENT.md](https://github.com/CQCL/hugr/blob/main/DEVELOPMENT.md) for 
 
 This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http://www.apache.org/licenses/LICENSE-2.0).
 
-  [API documentation here]: https://docs.rs/tket-extension-template/
-  [build_status]: https://github.com/CQCL/tket-extension-template/actions/workflows/ci-rs.yml/badge.svg?branch=main
-  [msrv]: https://img.shields.io/crates/msrv/tket-extension-template
-  [crates]: https://img.shields.io/crates/v/tket-extension-template
-  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket-extension-template?logo=codecov
-  [LICENSE]: https://github.com/CQCL/tket-extension-template/blob/main/LICENCE
-  [CHANGELOG]: https://github.com/CQCL/tket-extension-template/blob/main/tket-extension-template/CHANGELOG.md
+  [API documentation here]: https://docs.rs/tket-gridsynth-ext/
+  [build_status]: https://github.com/CQCL/tket-gridsynth-ext/actions/workflows/ci-rs.yml/badge.svg?branch=main
+  [msrv]: https://img.shields.io/crates/msrv/tket-gridsynth-ext
+  [crates]: https://img.shields.io/crates/v/tket-gridsynth-ext
+  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket-gridsynth-ext?logo=codecov
+  [LICENSE]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/LICENCE
+  [CHANGELOG]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/tket-gridsynth-ext/CHANGELOG.md

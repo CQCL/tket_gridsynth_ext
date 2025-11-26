@@ -9,7 +9,7 @@
         "python": {
             "release-type": "python",
             "component": "python",
-            "package-name": "tket-extension-template",
+            "package-name": "tket-gridsynth-ext",
             "include-component-in-tag": true,
             "draft": false,
             "prerelease": false,
@@ -18,7 +18,7 @@
                 {
                     "type": "toml",
                     "path": "uv.lock",
-                    "jsonpath": "$.package[?(@.name.value=='tket-extension-template')].version"
+                    "jsonpath": "$.package[?(@.name.value=='tket-gridsynth-ext')].version"
                 }
             ]
         }

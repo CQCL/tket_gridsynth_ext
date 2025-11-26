@@ -11,7 +11,7 @@ problems with it.
 
 0. Create a new Github repository for your extension using this one as a template.
 
-1. Replace all occurrences of `tket-extension-template` or `tket_extension_template` with your project's name.
+1. Replace all occurrences of `tket-gridsynth-ext` or `tket_extension_template` with your project's name.
 
 2. Ask someone on the Hugrverse team to create a @hugrbot token and add it as a `HUGRBOT_TOKEN` secret to the repository.
 
@@ -104,4 +104,4 @@ the python environment and setup the pre-commit hooks.
 You can check that your extension is working at each step by running `just
 test`.
 
-Check [DEVELOPMENT.md](https://github.com/CQCL/tket-extension-template/blob/main/DEVELOPMENT.md) for more details on working with the repository.
+Check [DEVELOPMENT.md](https://github.com/CQCL/tket-gridsynth-ext/blob/main/DEVELOPMENT.md) for more details on working with the repository.
