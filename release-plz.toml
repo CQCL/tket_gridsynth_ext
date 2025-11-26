@@ -61,6 +61,6 @@ commit_parsers = [
 protect_breaking_commits = true
 
 [[package]]
-name = "tket-gridsynth-ext"
+name = "tket_gridsynth_ext"
 git_release_latest = true
 release = true

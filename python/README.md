@@ -1,7 +1,7 @@
-tket-gridsynth-ext
+tket_gridsynth_ext
 ===============
 
-[![codecov][]](https://codecov.io/gh/CQCL/tket-gridsynth-ext)
+[![codecov][]](https://codecov.io/gh/CQCL/tket_gridsynth_ext)
 
 This README appears in the landing page of the package on PyPI.
 
@@ -10,14 +10,14 @@ It should include a high-level description of the extension, and a link to the A
 
 ## Installation
 
-The package name is `tket-gridsynth-ext`. It can be installed from PyPI:
+The package name is `tket_gridsynth_ext`. It can be installed from PyPI:
 ```bash
-uv pip install tket-gridsynth-ext
+uv pip install tket_gridsynth_ext
 ```
 
 ## Usage
 
-TODO
+TODO 
 
 ## Recent Changes
 
@@ -28,6 +28,6 @@ version will only change on major releases.
 
 This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http://www.apache.org/licenses/LICENSE-2.0).
 
-  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket-gridsynth-ext?logo=codecov
-  [LICENSE]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/LICENCE
-  [CHANGELOG]: https://github.com/CQCL/tket-gridsynth-ext/blob/main/python/CHANGELOG.md
+  [codecov]: https://img.shields.io/codecov/c/gh/CQCL/tket_gridsynth_ext?logo=codecov
+  [LICENSE]: https://github.com/CQCL/tket_gridsynth_ext/blob/main/LICENCE
+  [CHANGELOG]: https://github.com/CQCL/tket_gridsynth_ext/blob/main/python/CHANGELOG.md

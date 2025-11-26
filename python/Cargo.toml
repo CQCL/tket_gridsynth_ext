@@ -20,7 +20,7 @@ test = false
 bench = false
 
 [dependencies]
-tket-gridsynth-ext = { version = "0.0.0", path = "../rust" }
+tket_gridsynth_ext = { version = "0.0.0", path = "../rust" }
 
 derive_more = { workspace = true, features = ["display", "from"] }
 pyo3 = { workspace = true, features = ["extension-module", "abi3-py310"] }

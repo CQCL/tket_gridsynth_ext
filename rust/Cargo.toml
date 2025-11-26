@@ -1,9 +1,9 @@
 [package]
-name = "tket-gridsynth-ext"
+name = "tket_gridsynth_ext"
 version = "0.0.0"
 
 readme = "README.md"
-documentation = "https://docs.rs/tket-gridsynth-ext"
+documentation = "https://docs.rs/tket_gridsynth_ext"
 description = "A TKET extension"
 keywords = ["Quantum", "Quantinuum", "tket"]
 categories = ["compilers"]

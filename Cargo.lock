@@ -1463,7 +1463,7 @@ dependencies = [
  "derive_more 2.0.1",
  "pyo3",
  "tket",
- "tket-gridsynth-ext",
+ "tket_gridsynth_ext",
 ]
 
 [[package]]
@@ -1858,7 +1858,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tket-gridsynth-ext"
+name = "tket_gridsynth_ext"
 version = "0.0.0"
 dependencies = [
  "criterion",

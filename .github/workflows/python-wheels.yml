@@ -21,7 +21,7 @@ permissions:
 
 env:
   MODULE_DIR: python
-  PACKAGE_NAME: tket-gridsynth-ext
+  PACKAGE_NAME: tket_gridsynth_ext
   MODULE_NAME: tket_extension_template
   # Pinned version for the uv package manager
   UV_VERSION: "0.9.7"
