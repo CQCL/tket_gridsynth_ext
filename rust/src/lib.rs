@@ -3,11 +3,10 @@
 // TODO: These docs appear in the landing page of the crate documentation on docs.rs.
 // Make sure to update them to reflect the details of your extension.
 
-use tket::hugr::ops::handle::NodeHandle;
+// use tket::hugr::ops::handle::NodeHandle;
 use tket::{Hugr, op_matches};
 use tket::hugr::HugrView;
 use tket::hugr::hugr::hugrmut::HugrMut;
-use tket::hugr::ops::{FuncDefn, OpTag};
 use tket::TketOp;
 
 /// Find the FuncDefn node for the Rz gate
@@ -54,9 +53,10 @@ pub struct ExampleError {
 mod tests {
     use super::*;
 
-    use tket::{Circuit, Hugr};
-    use tket::hugr::builder::{Container, DFGBuilder, Dataflow, HugrBuilder, inout_sig};
-    use tket::hugr::extension::prelude::{qb_t, bool_t};
+    use tket::Hugr;
+    use tket::hugr::NodeIndex;
+    use tket::hugr::builder::{Container, DFGBuilder, Dataflow, HugrBuilder};
+    use tket::hugr::extension::prelude::{qb_t};
     use tket::hugr::ops::FuncDefn;
     use tket::hugr::types::Signature;
     use tket::hugr::ops::Value;
@@ -81,8 +81,10 @@ mod tests {
         let loaded_const = h.load_const(&constant);
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
-        let circ = h.finish_hugr(); //(rz.outputs()).unwrap().into();
-        let defn_node = find_rz_defn(&mut circ.unwrap()).unwrap();
+        let mut circ = h.finish_hugr().unwrap(); //(rz.outputs()).unwrap().into();
+        println!("{}", circ.mermaid_string());
+        let defn_node = find_rz_defn(&mut circ).unwrap();
+        assert_eq!(defn_node.index(), 9); // index 9 gleaned from manual inspection of hugr
 
 
         // let mut dfg_builder = DFGBuilder::new(inout_sig(
