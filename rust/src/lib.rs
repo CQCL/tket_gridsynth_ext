@@ -3,14 +3,20 @@
 // TODO: These docs appear in the landing page of the crate documentation on docs.rs.
 // Make sure to update them to reflect the details of your extension.
 
+use hugr_core::ops::{Const, Value};
+use portgraph::Direction;
+// use rsgridsynth::config::config_from_theta_epsilon;
+use rsgridsynth::gridsynth::gridsynth_gates;
+use tket::extension::rotation::ConstRotation;
 // use tket::hugr::ops::handle::NodeHandle;
 use tket::{Hugr, op_matches};
 use tket::hugr::HugrView;
 use tket::hugr::hugr::hugrmut::HugrMut;
+use tket::hugr::{Node, Port};
 use tket::TketOp;
 
-/// Find the FuncDefn node for the Rz gate
-pub fn find_rz_defn(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
+/// Find the FuncDefn node for the Rz gate.
+fn find_rz_defn(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
     for node in hugr.nodes() {
         let op_type = HugrView::get_optype(hugr, node);
         if op_matches(op_type, TketOp::Rz) {
@@ -19,7 +25,66 @@ pub fn find_rz_defn(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
     }
     None
 }
+// TO DO: extend this function to find all RZ gates
 
+fn find_linked_ports(hugr: &mut Hugr, rz_node: Node, port_idx: usize) -> Vec<(Node, Port)> {
+    let rz_ports = hugr.node_ports(rz_node, Direction::Incoming);
+    let collected_ports: Vec<_> = rz_ports.collect();
+    let linked_ports = hugr.
+        linked_ports(rz_node, collected_ports[port_idx]);
+    let linked_ports: Vec<(Node, Port)> = linked_ports.collect();
+    linked_ports
+}
+
+// fn check_if_angle_node(hugr: &mut Hugr, node: Node) {
+//     let op_type = HugrView::get_optype(hugr, node);
+//     if op_type.is_const() & op_type.value() == 
+// }
+
+
+
+// fn follow_path_to_angle
+
+/// Find the constant node containing the angle to be inputted to the Rz gate
+fn find_angle_node(hugr: &mut Hugr, rz_node: Node) -> Node {
+    // find linked ports to the rz port where the angle will be inputted
+    // the port offset of the angle is known to be 1 for the rz gate.
+    let linked_ports = find_linked_ports(hugr, rz_node, 1);
+    let mut prev_node = linked_ports[0].0;
+
+    // SHORTCUT: specialise to simple hugrs with LoadConst preceded by const node
+    // TO DO: generalise the following
+    let linked_ports = find_linked_ports(hugr, prev_node, 0);
+    let angle_node = linked_ports[0].0;
+    angle_node
+
+    // recursively follow the path(s) from node to node until a constant node containing
+    // the angle is found. 0 is the most likely port to be used, so we'll start with this
+    // loop {
+
+    // }
+
+    // for pair in linked_ports {
+    //     println!("{}, {}", pair.0.index(), pair.1.index());
+    //     }
+}
+
+fn find_angle(hugr: &mut Hugr, rz_node: Node) {
+    let angle_node = find_angle_node(hugr, rz_node);
+    let op_type = hugr.get_optype(angle_node);
+    let angle_const = op_type.as_const().unwrap();
+    let const_type = angle_const.get_type();
+    println!("{}", const_type);
+}
+
+
+
+
+// }
+// TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
+// ones that guppy produces
+
+// pub fn gridsynth_pass(hugr: &mut Hugr)
 
 /// Example function.
 ///
@@ -53,6 +118,7 @@ pub struct ExampleError {
 mod tests {
     use super::*;
 
+    use hugr_core::PortIndex;
     use tket::Hugr;
     use tket::hugr::NodeIndex;
     use tket::hugr::builder::{Container, DFGBuilder, Dataflow, HugrBuilder};
@@ -82,9 +148,28 @@ mod tests {
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
         let mut circ = h.finish_hugr().unwrap(); //(rz.outputs()).unwrap().into();
-        println!("{}", circ.mermaid_string());
-        let defn_node = find_rz_defn(&mut circ).unwrap();
-        assert_eq!(defn_node.index(), 9); // index 9 gleaned from manual inspection of hugr
+        // println!("{}", circ.mermaid_string());
+        let rz_node = find_rz_defn(&mut circ).unwrap();
+
+        // for figuring out how to access ports
+
+        // let rz_ports = circ
+        //     .linked_ports(rz_node, circ.node_ports(rz_node, Direction.Incoming));
+        // for port in rz_ports
+        //     println!("{}", port);
+        assert_eq!(rz_node.index(), 9); // index 9 gleaned from manual inspection of hugr
+
+        // testing that I can find prev port
+        let linked_ports = find_linked_ports(&mut circ, rz_node, 1);
+        let mut prev_node = linked_ports[0].0;
+        println!("{}", prev_node.index());
+        // let linked_ports = find_linked_ports(&mut circ, rz_node);
+        // for tup in linked_ports {
+        //     println!("{}, {}", tup.0.index(), tup.1.index());
+        // }
+        find_angle(&mut circ, rz_node)
+
+
 
 
         // let mut dfg_builder = DFGBuilder::new(inout_sig(
