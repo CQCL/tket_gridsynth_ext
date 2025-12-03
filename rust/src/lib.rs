@@ -17,7 +17,7 @@ use tket::hugr::{Node, Port};
 use tket::TketOp;
 
 /// Find the FuncDefn node for the Rz gate.
-fn find_rz_defn(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
+fn find_rz(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
     for node in hugr.nodes() {
         let op_type = HugrView::get_optype(hugr, node);
         if op_matches(op_type, TketOp::Rz) {
@@ -70,32 +70,28 @@ fn find_angle_node(hugr: &mut Hugr, rz_node: Node) -> Node {
     //     }
 }
 
-fn find_angle(hugr: &mut Hugr, rz_node: Node) -> f64 {
+fn find_angle(hugr: &mut Hugr) -> f64 {
+    let rz_node = find_rz(hugr).unwrap();
     let angle_node = find_angle_node(hugr, rz_node);
     let op_type = hugr.get_optype(angle_node);
     let angle_const = op_type.as_const().unwrap();
     let angle_val = &angle_const.value;
     let rot: &ConstRotation = angle_val.get_custom_value().unwrap();
-    // let const_type = angle_const.get_type();
-    // let angle_enum = const_type.as_type_enum_mut();
-    // let rot = const_type.;
-    // println!("{:?}", rot);
-    // let custom_val: &CustomConst = angle_const.value().unwrap();
-    // println!("{}", custom_val);
-    // let angle_enum = const_type.as_type_enum();
-    // let angle_in_rad = angle_enum.to_radians();
     let angle = rot.to_radians();
     angle
 }
 
-
-
+// fn get_gridsynth_str(hugr: &mut Hugr) {
+//     let  find_rz(hugr).unwrap();
+// }
 
 // }
 // TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
 // ones that guppy produces
 
-// pub fn gridsynth_pass(hugr: &mut Hugr)
+// pub fn gridsynth_pass(hugr: &mut Hugr) {
+
+// }
 
 /// Example function.
 ///
@@ -160,7 +156,7 @@ mod tests {
         let _ = h.set_outputs(rz.outputs());
         let mut circ = h.finish_hugr().unwrap(); //(rz.outputs()).unwrap().into();
         // println!("{}", circ.mermaid_string());
-        let rz_node = find_rz_defn(&mut circ).unwrap();
+        let rz_node = find_rz(&mut circ).unwrap();
 
         // for figuring out how to access ports
 
@@ -178,7 +174,7 @@ mod tests {
         // for tup in linked_ports {
         //     println!("{}, {}", tup.0.index(), tup.1.index());
         // }
-        let angle = find_angle(&mut circ, rz_node);
+        let angle = find_angle(&mut circ);
         println!("The angle is: {}", angle);
 
 
