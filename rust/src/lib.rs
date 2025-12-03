@@ -3,6 +3,7 @@
 // TODO: These docs appear in the landing page of the crate documentation on docs.rs.
 // Make sure to update them to reflect the details of your extension.
 
+use hugr_core::ops::constant::CustomConst;
 use hugr_core::ops::{Const, Value};
 use portgraph::Direction;
 // use rsgridsynth::config::config_from_theta_epsilon;
@@ -73,8 +74,18 @@ fn find_angle(hugr: &mut Hugr, rz_node: Node) {
     let angle_node = find_angle_node(hugr, rz_node);
     let op_type = hugr.get_optype(angle_node);
     let angle_const = op_type.as_const().unwrap();
-    let const_type = angle_const.get_type();
-    println!("{}", const_type);
+    let angle_val = &angle_const.value;
+    let rot: &ConstRotation = angle_val.get_custom_value().unwrap();
+    // let const_type = angle_const.get_type();
+    // let angle_enum = const_type.as_type_enum_mut();
+    // let rot = const_type.;
+    println!("{:?}", rot)
+    // let custom_val: &CustomConst = angle_const.value().unwrap();
+    // println!("{}", custom_val);
+    // let angle_enum = const_type.as_type_enum();
+    // let angle_in_rad = angle_enum.to_radians();
+
+
 }
 
 
