@@ -70,7 +70,7 @@ fn find_angle_node(hugr: &mut Hugr, rz_node: Node) -> Node {
     //     }
 }
 
-fn find_angle(hugr: &mut Hugr, rz_node: Node) {
+fn find_angle(hugr: &mut Hugr, rz_node: Node) -> f64 {
     let angle_node = find_angle_node(hugr, rz_node);
     let op_type = hugr.get_optype(angle_node);
     let angle_const = op_type.as_const().unwrap();
@@ -79,13 +79,13 @@ fn find_angle(hugr: &mut Hugr, rz_node: Node) {
     // let const_type = angle_const.get_type();
     // let angle_enum = const_type.as_type_enum_mut();
     // let rot = const_type.;
-    println!("{:?}", rot)
+    // println!("{:?}", rot);
     // let custom_val: &CustomConst = angle_const.value().unwrap();
     // println!("{}", custom_val);
     // let angle_enum = const_type.as_type_enum();
     // let angle_in_rad = angle_enum.to_radians();
-
-
+    let angle = rot.to_radians();
+    angle
 }
 
 
@@ -178,7 +178,9 @@ mod tests {
         // for tup in linked_ports {
         //     println!("{}, {}", tup.0.index(), tup.1.index());
         // }
-        find_angle(&mut circ, rz_node)
+        let angle = find_angle(&mut circ, rz_node);
+        println!("The angle is: {}", angle);
+
 
 
 
