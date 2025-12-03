@@ -81,7 +81,7 @@ fn find_angle(hugr: &mut Hugr) -> f64 {
     angle
 }
 
-fn get_gridsynth_str(hugr: &mut Hugr) -> String {
+fn apply_gridsynth(hugr: &mut Hugr) -> String {
     let theta = find_angle(hugr);
     // The following parameters could be made user-specifiable. For simplicity, I fix them, for now
     let epsilon = 1e-10;
@@ -91,6 +91,12 @@ fn get_gridsynth_str(hugr: &mut Hugr) -> String {
     let gates = gridsynth_gates(&mut gridsynth_config);
     gates    
 }
+
+// fn parse_gridsynth_output(gates: &str) {
+//     for gate in gates {
+
+//     }
+// }
 
 // }
 // TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
@@ -185,25 +191,7 @@ mod tests {
         let angle = find_angle(&mut circ);
         println!("The angle is: {}", angle);
 
-        let gates = get_gridsynth_str(&mut circ);
-        println!("{}", &gates);
-
-        
-
-
-
-
-        // let mut dfg_builder = DFGBuilder::new(inout_sig(
-        //     vec![qb_t()],
-        //     vec![qb_t(), bool_t()]
-        // )).unwrap();
-        // // Get the wire  
-        // let [wire] = dfg_builder.input_wires_arr();
-
-        // let constant = dfg_builder.add_constant(Value::extension(ConstRotation::PI_2));
-        // let loaded_const = dfg_builder.load_const(&constant);
-        // let rz = dfg_builder.add_dataflow_op(TketOp::Rz, [wire, loaded_const]).unwrap();
-        // let circ = dfg_builder.finish_hugr_with_outputs(rz.outputs()).unwrap().into();
-        
+        let gates = apply_gridsynth(&mut circ);
+        println!("{}", &gates);        
     }
 }
