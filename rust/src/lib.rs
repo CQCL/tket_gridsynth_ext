@@ -10,10 +10,13 @@ use rsgridsynth::config::config_from_theta_epsilon;
 use rsgridsynth::gridsynth::gridsynth_gates;
 use tket::extension::rotation::ConstRotation;
 // use tket::hugr::ops::handle::NodeHandle;
-use tket::{Hugr, op_matches};
+use tket::{Hugr, hugr, op_matches};
+use tket::hugr::builder::{Container, DFGBuilder, BuildHandle,Dataflow, HugrBuilder};
+use tket::hugr::extension::prelude::{qb_t};
 use tket::hugr::HugrView;
 use tket::hugr::hugr::hugrmut::HugrMut;
 use tket::hugr::{Node, Port};
+use tket::hugr::types::Signature;
 use tket::TketOp;
 
 /// Find the FuncDefn node for the Rz gate.
@@ -92,11 +95,47 @@ fn apply_gridsynth(hugr: &mut Hugr) -> String {
     gates    
 }
 
-// fn parse_gridsynth_output(gates: &str) {
-//     for gate in gates {
 
-//     }
-// }
+fn gridsynth_output_to_hugr(gates: &str) -> Hugr {
+    let qb_row = vec![qb_t(); 1]; // TO CHECK: will it cause issues to insert new qubit wire?
+    let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
+    let [q_in] = h.input_wires_arr();
+
+    // instantiating prev_gate arbitrarily as handle of input node because this 
+    // has the right type
+    println!("Before for loop");
+    let mut prev_gate = h.input(); 
+    for gate in gates.chars() {
+        if gate == 'H' {
+            prev_gate = h.add_dataflow_op(TketOp::H, [q_in]).unwrap();
+        }
+        else if gate == 'S' {
+            prev_gate = h.add_dataflow_op(TketOp::S, [q_in]).unwrap();
+        }
+        else if gate == 'T' {
+            prev_gate = h.add_dataflow_op(TketOp::T, [q_in]).unwrap();
+        }
+        else if gate == 'W' {
+            break; // Ignoring global phases for now.
+        }
+    }
+    h.set_outputs(prev_gate.outputs());
+    let mut hugr = h.finish_hugr().unwrap();
+    hugr.validate().unwrap_or_else(|e| panic!("{e}"));
+    hugr
+}
+
+
+
+/// Replace an Rz gate with the corresponding gates outputted by gridsynth
+pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
+    let rz_node = find_rz(hugr);
+    let gates = apply_gridsynth(hugr);
+    let hugr2insert = gridsynth_output_to_hugr(&gates);
+    println!("{}", hugr2insert.mermaid_string());
+    // TO DO: replace rz_node with hugr2insert
+}
+
 
 // }
 // TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
@@ -141,10 +180,7 @@ mod tests {
     use hugr_core::PortIndex;
     use tket::Hugr;
     use tket::hugr::NodeIndex;
-    use tket::hugr::builder::{Container, DFGBuilder, Dataflow, HugrBuilder};
-    use tket::hugr::extension::prelude::{qb_t};
     use tket::hugr::ops::FuncDefn;
-    use tket::hugr::types::Signature;
     use tket::hugr::ops::Value;
     use tket::extension::rotation::ConstRotation;
 
@@ -164,7 +200,7 @@ mod tests {
         let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
         let [q_in] = h.input_wires_arr();
 
-        let constant = h.add_constant(Value::extension(ConstRotation::PI_2));
+        let constant = h.add_constant(Value::extension(ConstRotation::PI_4));
         let loaded_const = h.load_const(&constant);
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
@@ -193,5 +229,6 @@ mod tests {
 
         let gates = apply_gridsynth(&mut circ);
         println!("{}", &gates);        
+        apply_gridsynth_pass(&mut circ);
     }
 }
