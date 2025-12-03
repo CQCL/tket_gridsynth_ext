@@ -31,7 +31,7 @@ fn find_rz(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
 }
 // TO DO: extend this function to find all RZ gates
 
-fn find_linked_ports(hugr: &mut Hugr, rz_node: Node, port_idx: usize) -> Vec<(Node, Port)> {
+fn find_linked_incoming_ports(hugr: &mut Hugr, rz_node: Node, port_idx: usize) -> Vec<(Node, Port)> {
     let rz_ports = hugr.node_ports(rz_node, Direction::Incoming);
     let collected_ports: Vec<_> = rz_ports.collect();
     let linked_ports = hugr.
@@ -53,12 +53,12 @@ fn find_linked_ports(hugr: &mut Hugr, rz_node: Node, port_idx: usize) -> Vec<(No
 fn find_angle_node(hugr: &mut Hugr, rz_node: Node) -> Node {
     // find linked ports to the rz port where the angle will be inputted
     // the port offset of the angle is known to be 1 for the rz gate.
-    let linked_ports = find_linked_ports(hugr, rz_node, 1);
+    let linked_ports = find_linked_incoming_ports(hugr, rz_node, 1);
     let mut prev_node = linked_ports[0].0;
 
     // SHORTCUT: specialise to simple hugrs with LoadConst preceded by const node
     // TO DO: generalise the following
-    let linked_ports = find_linked_ports(hugr, prev_node, 0);
+    let linked_ports = find_linked_incoming_ports(hugr, prev_node, 0);
     let angle_node = linked_ports[0].0;
     angle_node
 
@@ -101,7 +101,6 @@ fn gridsynth_output_to_hugr(gates: &str) -> Hugr {
     let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
     let [q_in] = h.input_wires_arr();
 
-    println!("Before for loop");
     let mut prev_op = h.input(); 
     for gate in gates.chars() {
         if gate == 'H' {
@@ -123,16 +122,67 @@ fn gridsynth_output_to_hugr(gates: &str) -> Hugr {
     hugr
 }
 
+fn destroy_path_to_angle_node(hugr: &mut Hugr, rz_node: Node)  {
+    // find linked ports to the rz port where the angle will be inputted
+    // the port offset of the angle is known to be 1 for the rz gate.
+    let linked_ports = find_linked_incoming_ports(hugr, rz_node, 1);
+    let load_const_node = linked_ports[0].0;
 
+    // SHORTCUT: specialise to simple hugrs with LoadConst preceded by const node
+    // TO DO: generalise the following
+    let linked_ports = find_linked_incoming_ports(hugr, load_const_node, 0);
+    let angle_node = linked_ports[0].0;
+
+    hugr.remove_node(load_const_node);
+    hugr.remove_node(angle_node);
+    // println!("{}", hugr.mermaid_string());
+}
+
+/// get previous node that provided qubit to Rz gate and the Rz gate
+fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
+    let linked_ports = find_linked_incoming_ports(hugr, rz_node, 0);
+    let prev_node = linked_ports[0].0;
+    prev_node
+}
+
+
+fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str) {
+    // getting node that gave qubit to Rz gate
+    let mut prev_node = find_qubit_source(hugr, rz_node);
+
+    hugr.remove_node(rz_node);
+
+    // recursively adding next gate in gates to prev_node
+    for gate in gates.chars() {
+        if gate == 'H' {
+            let prev_node = hugr.add_node_after(prev_node,TketOp::H);
+        }
+        else if gate == 'S' {
+            let prev_node = hugr.add_node_after(prev_node,TketOp::S);
+        }
+        else if gate == 'T' {
+            let prev_node = hugr.add_node_after(prev_node,TketOp::T);
+        }
+        else if gate == 'W' {
+            break; // Ignoring global phases for now.
+        }
+    }
+    println!("{}", hugr.mermaid_string());
+} 
+// TO DO: FINISH
 
 /// Replace an Rz gate with the corresponding gates outputted by gridsynth
 pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
-    let rz_node = find_rz(hugr);
+    let rz_node = find_rz(hugr).unwrap();
     let gates = apply_gridsynth(hugr);
-    let hugr2insert = gridsynth_output_to_hugr(&gates);
-    println!("{}", hugr2insert.mermaid_string());
+    // let hugr2insert = gridsynth_output_to_hugr(&gates);
+    // println!("{}", hugr2insert.mermaid_string());
     // TO DO: replace rz_node with hugr2insert
-
+    // let root_parents = !vec[()]
+    // hugr.insert_forest(hugr2insert, root_parents)
+    destroy_path_to_angle_node(hugr, rz_node);
+    // println!("{}", rz_node);
+    replace_rz_with_gridsynth_output(hugr, rz_node, &gates);
 }
 
 
@@ -216,10 +266,10 @@ mod tests {
         assert_eq!(rz_node.index(), 9); // index 9 gleaned from manual inspection of hugr
 
         // testing that I can find prev port
-        let linked_ports = find_linked_ports(&mut circ, rz_node, 1);
+        let linked_ports = find_linked_incoming_ports(&mut circ, rz_node, 1);
         let mut prev_node = linked_ports[0].0;
         println!("{}", prev_node.index());
-        // let linked_ports = find_linked_ports(&mut circ, rz_node);
+        // let linked_ports = find_linked_incoming_ports(&mut circ, rz_node);
         // for tup in linked_ports {
         //     println!("{}, {}", tup.0.index(), tup.1.index());
         // }
