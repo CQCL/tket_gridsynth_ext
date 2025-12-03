@@ -153,6 +153,7 @@ mod tests {
 
     #[test]
     fn finds_rz_func_defn() {
+        // TO DO: rename test once its usage is settled
         let qb_row = vec![qb_t(); 1];
         let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
         let [q_in] = h.input_wires_arr();
@@ -183,6 +184,9 @@ mod tests {
         // }
         let angle = find_angle(&mut circ);
         println!("The angle is: {}", angle);
+
+        let gates = get_gridsynth_str(&mut circ);
+        println!("{}", &gates);
 
         
 

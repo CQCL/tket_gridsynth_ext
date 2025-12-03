@@ -26,7 +26,7 @@ workspace = true
 derive_more = { workspace = true, features = ["display", "error", "from"] }
 itertools = { workspace = true }
 tket = { workspace = true }
-rsgridsynth = "0.1.1"
+rsgridsynth = { git = "https://github.com/qiskit-community/rsgridsynth.git"}
 portgraph = "0.15.2"
 hugr-core = "0.24.3"
 
