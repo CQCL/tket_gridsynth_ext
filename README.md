@@ -17,7 +17,6 @@ Add the dependency to your project:
 cargo add tket_gridsynth_ext
 ```
 
-
 Please read the [API documentation here][].
 
 ## Recent Changes

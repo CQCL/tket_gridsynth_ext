@@ -6,7 +6,7 @@
 use hugr_core::ops::constant::CustomConst;
 use hugr_core::ops::{Const, Value};
 use portgraph::Direction;
-// use rsgridsynth::config::config_from_theta_epsilon;
+use rsgridsynth::config::config_from_theta_epsilon;
 use rsgridsynth::gridsynth::gridsynth_gates;
 use tket::extension::rotation::ConstRotation;
 // use tket::hugr::ops::handle::NodeHandle;
@@ -81,9 +81,16 @@ fn find_angle(hugr: &mut Hugr) -> f64 {
     angle
 }
 
-// fn get_gridsynth_str(hugr: &mut Hugr) {
-//     let  find_rz(hugr).unwrap();
-// }
+fn get_gridsynth_str(hugr: &mut Hugr) -> String {
+    let theta = find_angle(hugr);
+    // The following parameters could be made user-specifiable. For simplicity, I fix them, for now
+    let epsilon = 1e-10;
+    let seed = 1234;
+    let verbose = false;
+    let mut gridsynth_config = config_from_theta_epsilon(theta, epsilon, seed, verbose);
+    let gates = gridsynth_gates(&mut gridsynth_config);
+    gates    
+}
 
 // }
 // TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
@@ -177,6 +184,7 @@ mod tests {
         let angle = find_angle(&mut circ);
         println!("The angle is: {}", angle);
 
+        
 
 
 

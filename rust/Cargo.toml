@@ -26,9 +26,13 @@ workspace = true
 derive_more = { workspace = true, features = ["display", "error", "from"] }
 itertools = { workspace = true }
 tket = { workspace = true }
+rsgridsynth = "0.1.1"
+portgraph = "0.15.2"
+hugr-core = "0.24.3"
 
 [dev-dependencies]
 criterion = "0.7.0"
+rstest = "0.26.1"
 
 [[bench]]
 name = "bench_main"
