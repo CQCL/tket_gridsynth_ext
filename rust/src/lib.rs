@@ -101,25 +101,23 @@ fn gridsynth_output_to_hugr(gates: &str) -> Hugr {
     let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
     let [q_in] = h.input_wires_arr();
 
-    // instantiating prev_gate arbitrarily as handle of input node because this 
-    // has the right type
     println!("Before for loop");
-    let mut prev_gate = h.input(); 
+    let mut prev_op = h.input(); 
     for gate in gates.chars() {
         if gate == 'H' {
-            prev_gate = h.add_dataflow_op(TketOp::H, [q_in]).unwrap();
+            prev_op = h.add_dataflow_op(TketOp::H, prev_op.outputs()).unwrap();
         }
         else if gate == 'S' {
-            prev_gate = h.add_dataflow_op(TketOp::S, [q_in]).unwrap();
+            prev_op = h.add_dataflow_op(TketOp::S, prev_op.outputs()).unwrap();
         }
         else if gate == 'T' {
-            prev_gate = h.add_dataflow_op(TketOp::T, [q_in]).unwrap();
+            prev_op = h.add_dataflow_op(TketOp::T, prev_op.outputs()).unwrap();
         }
         else if gate == 'W' {
             break; // Ignoring global phases for now.
         }
     }
-    h.set_outputs(prev_gate.outputs());
+    h.set_outputs(prev_op.outputs());
     let mut hugr = h.finish_hugr().unwrap();
     hugr.validate().unwrap_or_else(|e| panic!("{e}"));
     hugr
@@ -134,6 +132,7 @@ pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
     let hugr2insert = gridsynth_output_to_hugr(&gates);
     println!("{}", hugr2insert.mermaid_string());
     // TO DO: replace rz_node with hugr2insert
+
 }
 
 
