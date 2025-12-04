@@ -170,6 +170,22 @@ fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType)
     prev_node
 }
 
+fn find_dfg_output_node(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
+    for node in hugr.nodes() {
+        let op_type = HugrView::get_optype(hugr, node);
+        if op_type.is_dfg() {
+            let dfg_node = node;
+            for node in hugr.descendants(dfg_node) {
+                let op_type = HugrView::get_optype(hugr, node);
+                if op_type.is_output() {
+                    return Some(node);
+                }
+            }
+        }
+    }
+    None
+}
+
 fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str) {
     // getting node that gave qubit to Rz gate
     let mut prev_node = find_qubit_source(hugr, rz_node);
@@ -191,13 +207,22 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
             // let prev_node = hugr.add_node_after(prev_node,TketOp::T);
         }
         else if gate == 'W' {
+            // find output node and connect it to node for previous gate
+
+            let dfg_output_node = find_dfg_output_node(hugr).unwrap();
+            hugr.add_ports(prev_node, Direction::Outgoing, 1);
+            let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
+            // Assuming there were no outgoing ports to begin with when deciding port offset
+            let src_port = ports[0];
+            let ports:  Vec<_> = hugr.node_inputs(dfg_output_node).collect();
+            let dst_port = ports[0];
+            hugr.connect(prev_node, src_port, dfg_output_node, dst_port);
             break; // Ignoring global phases for now.
         }
     }
     println!("{}", hugr.mermaid_string());
-    // TO DO: connect nodes and validate
+    hugr.validate().unwrap_or_else(|e| panic!("{e}"));
 } 
-// TO DO: FINISH
 
 /// Replace an Rz gate with the corresponding gates outputted by gridsynth
 pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
@@ -276,7 +301,7 @@ mod tests {
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
         let mut circ = h.finish_hugr().unwrap(); //(rz.outputs()).unwrap().into();
-        // println!("{}", circ.mermaid_string());
+        println!("First mermaid string is: {}", circ.mermaid_string());
         let rz_node = find_rz(&mut circ).unwrap();
 
         // for figuring out how to access ports
