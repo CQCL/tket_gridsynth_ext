@@ -3,6 +3,7 @@
 // TODO: These docs appear in the landing page of the crate documentation on docs.rs.
 // Make sure to update them to reflect the details of your extension.
 
+use hugr_core::hugr::internal::HugrMutInternals;
 use hugr_core::ops::constant::CustomConst;
 use hugr_core::ops::{Const, Value};
 use portgraph::Direction;
@@ -158,17 +159,12 @@ fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
 /// and connect
 fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType) -> Node {
     let current_node =  hugr.add_node_after(prev_node, op);
-    // Next line uses assumption on what port offset the qubit will exit from. TO DO:
-    // generalise
-    let linked_ports = find_linked_outgoing_ports(hugr, prev_node, 0);
-    println!("Before source port, linked ports are {:?}", linked_ports);
-    let src_port = linked_ports[0].1;
-    println!("After source port");
-    let src_port = src_port.as_outgoing().unwrap();
-    // Next line is not assuming anything because the port offset of all gridsynth gates is known
-    let linked_ports = find_linked_incoming_ports(hugr, current_node, 0);
-    let dst_port = linked_ports[0].1;
-    let dst_port = dst_port.as_incoming().unwrap();
+    hugr.add_ports(prev_node, Direction::Outgoing, 1);
+    let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
+    // Assuming there were no outgoing ports to begin with when deciding port offset
+    let src_port = ports[0];
+    let ports:  Vec<_> = hugr.node_inputs(current_node).collect();
+    let dst_port = ports[0];
     hugr.connect(prev_node, src_port, current_node, dst_port);
     let prev_node = current_node;
     prev_node
