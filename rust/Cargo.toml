@@ -16,7 +16,7 @@ license = { workspace = true }
 
 [lib]
 bench = false
-name = "tket_extension_template"
+name = "tket_gridsynth_ext"
 path = "src/lib.rs"
 
 [lints]

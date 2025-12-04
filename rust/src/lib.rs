@@ -94,10 +94,10 @@ fn find_angle(hugr: &mut Hugr) -> f64 {
     angle
 }
 
-fn apply_gridsynth(hugr: &mut Hugr) -> String {
+fn apply_gridsynth(hugr: &mut Hugr, epsilon: f64) -> String {
     let theta = find_angle(hugr);
     // The following parameters could be made user-specifiable. For simplicity, I fix them, for now
-    let epsilon = 1e-6; // set very to very low precision to make nicer diagram for demo
+    // let epsilon = 1e-1; // very low precision to allow easier visualisation for demo
     let seed = 1234;
     let verbose = false;
     let mut gridsynth_config = config_from_theta_epsilon(theta, epsilon, seed, verbose);
@@ -215,46 +215,21 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
             break; // Ignoring global phases for now.
         }
     }
-    println!("{}", hugr.mermaid_string());
     hugr.validate().unwrap_or_else(|e| panic!("{e}"));
 } 
 
 /// Replace an Rz gate with the corresponding gates outputted by gridsynth
-pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
+pub fn apply_gridsynth_pass(hugr: &mut Hugr, epsilon: f64) {
     let rz_node = find_rz(hugr).unwrap();
-    let gates = apply_gridsynth(hugr);
+    let gates = apply_gridsynth(hugr, epsilon);
     destroy_path_to_angle_node(hugr, rz_node);
     replace_rz_with_gridsynth_output(hugr, rz_node, &gates);
 }
 
-
-// }
 // TO DO: make compatible with Guppy hugrs. Right now, it will only work for simple hugrs not like the 
 // ones that guppy produces
 
-// pub fn gridsynth_pass(hugr: &mut Hugr) {
 
-// }
-
-/// Example function.
-///
-/// Takes a Hugr and removes every node from it, except the module root.
-pub fn example_remove_contents(hugr: &mut Hugr) -> Result<(), ExampleError> {
-    if hugr.num_nodes() == 1 {
-        return Err(ExampleError {
-            message: "Hugr is already empty".to_string(),
-        });
-    }
-    hugr.set_entrypoint(hugr.module_root());
-
-    while let Some(node) = hugr.first_child(hugr.module_root()) {
-        hugr.remove_subtree(node);
-    }
-
-    hugr.validate().unwrap_or_else(|e| panic!("{e}"));
-
-    Ok(())
-}
 
 /// Example error.
 #[derive(Debug, derive_more::Display, derive_more::Error)]
@@ -276,22 +251,13 @@ mod tests {
     use tket::extension::rotation::ConstRotation;
 
     #[test]
-    fn it_works() {
-        let mut hugr =
-            Hugr::new_with_entrypoint(FuncDefn::new("test", Signature::new(vec![], vec![])))
-                .unwrap();
-
-        example_remove_contents(&mut hugr).unwrap();
-    }
-
-    #[test]
     fn finds_rz_func_defn() {
         // TO DO: rename test once its usage is settled
         let qb_row = vec![qb_t(); 1];
         let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
         let [q_in] = h.input_wires_arr();
 
-        let constant = h.add_constant(Value::extension(ConstRotation::PI_2));
+        let constant = h.add_constant(Value::extension(ConstRotation::PI_4));
         let loaded_const = h.load_const(&constant);
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
@@ -302,25 +268,20 @@ mod tests {
 
         // for figuring out how to access ports
 
-        // let rz_ports = circ
-        //     .linked_ports(rz_node, circ.node_ports(rz_node, Direction.Incoming));
-        // for port in rz_ports
-        //     println!("{}", port);
         assert_eq!(rz_node.index(), 9); // index 9 gleaned from manual inspection of hugr
 
         // testing that I can find prev port
         let linked_ports = find_linked_incoming_ports(&mut circ, rz_node, 1);
         let mut prev_node = linked_ports[0].0;
         println!("{}", prev_node.index());
-        // let linked_ports = find_linked_incoming_ports(&mut circ, rz_node);
-        // for tup in linked_ports {
-        //     println!("{}, {}", tup.0.index(), tup.1.index());
-        // }
+
         let angle = find_angle(&mut circ);
         println!("The angle is: {}", angle);
 
-        let gates = apply_gridsynth(&mut circ);
+        let epsilon: f64 = 1e-1;
+        let gates = apply_gridsynth(&mut circ, epsilon);
         println!("{}", &gates);        
-        apply_gridsynth_pass(&mut circ);
+        apply_gridsynth_pass(&mut circ, epsilon);
+        println!("{}", circ.mermaid_string());
     }
 }
