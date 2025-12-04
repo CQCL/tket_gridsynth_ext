@@ -31,11 +31,20 @@ fn find_rz(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
 }
 // TO DO: extend this function to find all RZ gates
 
-fn find_linked_incoming_ports(hugr: &mut Hugr, rz_node: Node, port_idx: usize) -> Vec<(Node, Port)> {
-    let rz_ports = hugr.node_ports(rz_node, Direction::Incoming);
-    let collected_ports: Vec<_> = rz_ports.collect();
+fn find_linked_incoming_ports(hugr: &mut Hugr, node: Node, port_idx: usize) -> Vec<(Node, Port)> {
+    let ports = hugr.node_ports(node, Direction::Incoming);
+    let collected_ports: Vec<_> = ports.collect();
     let linked_ports = hugr.
-        linked_ports(rz_node, collected_ports[port_idx]);
+        linked_ports(node, collected_ports[port_idx]);
+    let linked_ports: Vec<(Node, Port)> = linked_ports.collect();
+    linked_ports
+}
+
+fn find_linked_outgoing_ports(hugr: &mut Hugr, node: Node, port_idx: usize) -> Vec<(Node, Port)> {
+    let ports = hugr.node_ports(node, Direction::Outgoing);
+    let collected_ports: Vec<_> = ports.collect();
+    let linked_ports = hugr.
+        linked_ports(node, collected_ports[port_idx]);
     let linked_ports: Vec<(Node, Port)> = linked_ports.collect();
     linked_ports
 }
@@ -145,6 +154,25 @@ fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
     prev_node
 }
 
+/// Add a gridsynth gate to some previous node, which may or may not be a gridsynth gate, 
+/// and connect
+fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType) -> Node {
+    let current_node =  hugr.add_node_after(prev_node, op);
+    // Next line uses assumption on what port offset the qubit will exit from. TO DO:
+    // generalise
+    let linked_ports = find_linked_outgoing_ports(hugr, prev_node, 0);
+    println!("Before source port, linked ports are {:?}", linked_ports);
+    let src_port = linked_ports[0].1;
+    println!("After source port");
+    let src_port = src_port.as_outgoing().unwrap();
+    // Next line is not assuming anything because the port offset of all gridsynth gates is known
+    let linked_ports = find_linked_incoming_ports(hugr, current_node, 0);
+    let dst_port = linked_ports[0].1;
+    let dst_port = dst_port.as_incoming().unwrap();
+    hugr.connect(prev_node, src_port, current_node, dst_port);
+    let prev_node = current_node;
+    prev_node
+}
 
 fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str) {
     // getting node that gave qubit to Rz gate
@@ -152,22 +180,38 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
 
     hugr.remove_node(rz_node);
 
+    println!("Before for loop");
     // recursively adding next gate in gates to prev_node
     for gate in gates.chars() {
         if gate == 'H' {
-            let prev_node = hugr.add_node_after(prev_node,TketOp::H);
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::H.into());
+            // let current_node =  hugr.add_node_after(prev_node,TketOp::H);
+            // // Next line uses assumption on what port offset the qubit will exit from. TO DO:
+            // // generalise
+            // let linked_ports = find_linked_outgoing_ports(hugr, prev_node, 0);
+            // let src_port = linked_ports[0].1;
+            // let src_port = src_port.as_outgoing().unwrap();
+            // // Next line is not assuming anything because the port offset of all gridsynth gates is known
+            // let linked_ports = find_linked_incoming_ports(hugr, current_node, 0);
+            // let dst_port = linked_ports[0].1;
+            // let dst_port = dst_port.as_incoming().unwrap();
+            // hugr.connect(prev_node, src_port, current_node, dst_port);
+            // prev_node = current_node;
         }
         else if gate == 'S' {
-            let prev_node = hugr.add_node_after(prev_node,TketOp::S);
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::S.into());
+            // let prev_node = hugr.add_node_after(prev_node,TketOp::S);
         }
         else if gate == 'T' {
-            let prev_node = hugr.add_node_after(prev_node,TketOp::T);
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::T.into());
+            // let prev_node = hugr.add_node_after(prev_node,TketOp::T);
         }
         else if gate == 'W' {
             break; // Ignoring global phases for now.
         }
     }
     println!("{}", hugr.mermaid_string());
+    // TO DO: connect nodes and validate
 } 
 // TO DO: FINISH
 
