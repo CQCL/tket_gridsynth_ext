@@ -159,7 +159,6 @@ fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
 /// and connect
 fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType, output_node: Node) -> Node {
     let current_node =  hugr.add_node_after(output_node, op);
-    // hugr.add_ports(prev_node, Direction::Outgoing, 1);
     let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
     // Assuming there were no outgoing ports to begin with when deciding port offset
     let src_port = ports[0];
@@ -200,16 +199,13 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
         }
         else if gate == 'S' {
             prev_node = add_gate_and_connect(hugr, prev_node, TketOp::S.into(), dfg_output_node);
-            // let prev_node = hugr.add_node_after(prev_node,TketOp::S);
         }
         else if gate == 'T' {
             prev_node = add_gate_and_connect(hugr, prev_node, TketOp::T.into(), dfg_output_node);
-            // let prev_node = hugr.add_node_after(prev_node,TketOp::T);
         }
         else if gate == 'W' {
             // find output node and connect it to node for previous gate
 
-            // hugr.add_ports(prev_node, Direction::Outgoing, 1);
             let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
             // Assuming there were no outgoing ports to begin with when deciding port offset
             let src_port = ports[0];
