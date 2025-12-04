@@ -97,7 +97,7 @@ fn find_angle(hugr: &mut Hugr) -> f64 {
 fn apply_gridsynth(hugr: &mut Hugr) -> String {
     let theta = find_angle(hugr);
     // The following parameters could be made user-specifiable. For simplicity, I fix them, for now
-    let epsilon = 1e-10;
+    let epsilon = 1e-6; // set very to very low precision to make nicer diagram for demo
     let seed = 1234;
     let verbose = false;
     let mut gridsynth_config = config_from_theta_epsilon(theta, epsilon, seed, verbose);
@@ -148,7 +148,7 @@ fn destroy_path_to_angle_node(hugr: &mut Hugr, rz_node: Node)  {
     // println!("{}", hugr.mermaid_string());
 }
 
-/// get previous node that provided qubit to Rz gate and the Rz gate
+/// get previous node that provided qubit to Rz gate
 fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
     let linked_ports = find_linked_incoming_ports(hugr, rz_node, 0);
     let prev_node = linked_ports[0].0;
@@ -157,9 +157,9 @@ fn find_qubit_source(hugr: &mut Hugr, rz_node: Node) -> Node {
 
 /// Add a gridsynth gate to some previous node, which may or may not be a gridsynth gate, 
 /// and connect
-fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType) -> Node {
-    let current_node =  hugr.add_node_after(prev_node, op);
-    hugr.add_ports(prev_node, Direction::Outgoing, 1);
+fn add_gate_and_connect(hugr: &mut Hugr, prev_node: Node, op: hugr::ops::OpType, output_node: Node) -> Node {
+    let current_node =  hugr.add_node_after(output_node, op);
+    // hugr.add_ports(prev_node, Direction::Outgoing, 1);
     let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
     // Assuming there were no outgoing ports to begin with when deciding port offset
     let src_port = ports[0];
@@ -189,28 +189,27 @@ fn find_dfg_output_node(hugr: &mut Hugr) -> Option<tket::hugr::Node> {
 fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str) {
     // getting node that gave qubit to Rz gate
     let mut prev_node = find_qubit_source(hugr, rz_node);
+    let dfg_output_node = find_dfg_output_node(hugr).unwrap();
 
     hugr.remove_node(rz_node);
 
-    println!("Before for loop");
     // recursively adding next gate in gates to prev_node
     for gate in gates.chars() {
         if gate == 'H' {
-            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::H.into());
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::H.into(), dfg_output_node);
         }
         else if gate == 'S' {
-            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::S.into());
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::S.into(), dfg_output_node);
             // let prev_node = hugr.add_node_after(prev_node,TketOp::S);
         }
         else if gate == 'T' {
-            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::T.into());
+            prev_node = add_gate_and_connect(hugr, prev_node, TketOp::T.into(), dfg_output_node);
             // let prev_node = hugr.add_node_after(prev_node,TketOp::T);
         }
         else if gate == 'W' {
             // find output node and connect it to node for previous gate
 
-            let dfg_output_node = find_dfg_output_node(hugr).unwrap();
-            hugr.add_ports(prev_node, Direction::Outgoing, 1);
+            // hugr.add_ports(prev_node, Direction::Outgoing, 1);
             let ports:  Vec<_> = hugr.node_outputs(prev_node).collect();
             // Assuming there were no outgoing ports to begin with when deciding port offset
             let src_port = ports[0];
@@ -296,12 +295,13 @@ mod tests {
         let mut h = DFGBuilder::new(Signature::new(qb_row.clone(), qb_row)).unwrap();
         let [q_in] = h.input_wires_arr();
 
-        let constant = h.add_constant(Value::extension(ConstRotation::PI_4));
+        let constant = h.add_constant(Value::extension(ConstRotation::PI_2));
         let loaded_const = h.load_const(&constant);
         let rz = h.add_dataflow_op(TketOp::Rz, [q_in, loaded_const]).unwrap();
         let _ = h.set_outputs(rz.outputs());
         let mut circ = h.finish_hugr().unwrap(); //(rz.outputs()).unwrap().into();
         println!("First mermaid string is: {}", circ.mermaid_string());
+        circ.validate().unwrap_or_else(|e| panic!("{e}"));
         let rz_node = find_rz(&mut circ).unwrap();
 
         // for figuring out how to access ports
