@@ -181,18 +181,6 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
     for gate in gates.chars() {
         if gate == 'H' {
             prev_node = add_gate_and_connect(hugr, prev_node, TketOp::H.into());
-            // let current_node =  hugr.add_node_after(prev_node,TketOp::H);
-            // // Next line uses assumption on what port offset the qubit will exit from. TO DO:
-            // // generalise
-            // let linked_ports = find_linked_outgoing_ports(hugr, prev_node, 0);
-            // let src_port = linked_ports[0].1;
-            // let src_port = src_port.as_outgoing().unwrap();
-            // // Next line is not assuming anything because the port offset of all gridsynth gates is known
-            // let linked_ports = find_linked_incoming_ports(hugr, current_node, 0);
-            // let dst_port = linked_ports[0].1;
-            // let dst_port = dst_port.as_incoming().unwrap();
-            // hugr.connect(prev_node, src_port, current_node, dst_port);
-            // prev_node = current_node;
         }
         else if gate == 'S' {
             prev_node = add_gate_and_connect(hugr, prev_node, TketOp::S.into());
@@ -215,13 +203,7 @@ fn replace_rz_with_gridsynth_output(hugr: &mut Hugr, rz_node: Node, gates: &str)
 pub fn apply_gridsynth_pass(hugr: &mut Hugr) {
     let rz_node = find_rz(hugr).unwrap();
     let gates = apply_gridsynth(hugr);
-    // let hugr2insert = gridsynth_output_to_hugr(&gates);
-    // println!("{}", hugr2insert.mermaid_string());
-    // TO DO: replace rz_node with hugr2insert
-    // let root_parents = !vec[()]
-    // hugr.insert_forest(hugr2insert, root_parents)
     destroy_path_to_angle_node(hugr, rz_node);
-    // println!("{}", rz_node);
     replace_rz_with_gridsynth_output(hugr, rz_node, &gates);
 }
 
